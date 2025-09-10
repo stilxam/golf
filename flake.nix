@@ -33,8 +33,8 @@
         plf-src = pkgs.fetchFromGitHub {
           owner = "stilxam";
           repo = "plf";
-          rev = "4e666cf90e1385a052180612a02f2908e0d588e0";
-          sha256 = "sha256-gxTFhMMSeHNqB2EP6Y27ON2tQysZhc9+a+0VTz3pXL4=";
+          rev = "a7ef1f3684751b80b9f3ad9d36e3e3ab7745275d";
+          sha256 = "sha256-ZnbUmNI5cnvetcJoBjCsWn+nh5qMhS7pn2UlOfIm6bA=";
         };
 
         pythonPackages = pkgs.python312.pkgs;
