@@ -6,11 +6,11 @@ build-backend = "setuptools.build_meta"
 name = "plf"
 version = "0.0.1"
 authors = [
-  { name="plf developer", email="dev@example.com" },
+  { name="Maxwell Litsios", email="m.l.h.litsios@student.tue.nl" },
 ]
-description = "A small package for piecewise linear fitting."
+description = "Gradient optimized piecewise linear fitting in JAX."
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.12"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
