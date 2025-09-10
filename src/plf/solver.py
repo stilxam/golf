@@ -1,9 +1,11 @@
 import jax.numpy as jnp
-from jax.typing import ArrayLike
+from jaxtyping import Array, Float
 
 
 def solve_weighted_linear_regression(
-        x: ArrayLike, y: ArrayLike, weights: ArrayLike
+    x: Float[Array, "n"],
+    y: Float[Array, "n"],
+    weights: Float[Array, "n"]
 ) -> tuple[float, float]:
     """
     Solves for the slope and intercept using weighted least squares.
