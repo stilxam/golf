@@ -50,28 +50,33 @@ def fit(
     if verbose:
         print("--- Starting Training ---")
 
+    # initialize early-stopping variables
+    best_loss = jnp.inf
+    best_model = model
+    wait = 0
+
     for i in range(n_iterations):
         model, opt_state, loss = _make_step(model, optimizer, opt_state, x_arr, y_arr)
-        if verbose and (i == 0 or (i + 1) % (n_iterations // 10) == 0):
-            print(f"Iteration {i + 1:5d}: Loss = {loss.item():.6f}")
+        if verbose and (i == 0 or (i + 1) % max(1, (n_iterations // 10)) == 0):
+            try:
+                loss_val = float(loss)
+            except Exception:
+                loss_val = loss
+            print(f"Iteration {i + 1:5d}: Loss = {loss_val:.6f}")
 
-        if i == 0:
+        if loss < best_loss:
             best_loss = loss
             best_model = model
             wait = 0
         else:
-            if loss < best_loss:
-                best_loss = loss
-                best_model = model
-                wait = 0
-            else:
-                wait += 1
-            if wait >= patience:
-                if verbose:
-                    print(f"Early stopping at iteration {i + 1}")
-                break
+            wait += 1
+        if wait >= patience:
+            if verbose:
+                print(f"Early stopping at iteration {i + 1}")
+            break
 
     if verbose:
         print("--- Finished Training ---")
 
-    return best_model if 'best_model' in locals() else model
+    return best_model
+

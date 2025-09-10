@@ -38,7 +38,6 @@ class PiecewiseModel(eqx.Module):
             key: A JAX random key for initializing the heights.
             init_breakpoints_x: Optional array to initialize internal breakpoints.
             init_breakpoints_y: Optional array to initialize breakpoints y values.
-            y_data: Optional y training data to use for smart initialization of breakpoints_y.
         """
 
         keys = jax.random.split(key, 2)
@@ -71,3 +70,4 @@ class PiecewiseModel(eqx.Module):
 
         # jnp.interp is the core of our differentiable model.
         return jnp.interp(x, full_x, self.breakpoints_y)
+

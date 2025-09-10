@@ -28,3 +28,4 @@ def solve_weighted_linear_regression(
     slope, intercept = params
 
     return slope, intercept
+
