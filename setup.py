@@ -6,10 +6,10 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="plf",
-    version="0.1.0", # Or a more appropriate version
-    author="stilxam",
-    author_email="author@example.com", # Placeholder email
-    description="Piecewise-Linear-Functions in JAX",
+    version="0.0.1",
+    author="Maxwell Litsios",
+    author_email="m.l.h.litsios@student.tue.nl",
+    description="Gradient optimized piecewise linear fitting in JAX.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/stilxam/plf",
@@ -18,10 +18,8 @@ setuptools.setup(
     },
     classifiers=[
         "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: MIT License", # Assuming MIT from the pyproject.toml
+        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
         "Operating System :: OS Independent",
-        "Intended Audience :: Science/Research",
-        "Topic :: Scientific/Engineering :: Artificial Intelligence",
     ],
     package_dir={"": "src"},
     packages=setuptools.find_packages(where="src"),
