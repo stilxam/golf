@@ -33,8 +33,8 @@
         golf-src = pkgs.fetchFromGitHub {
           owner = "stilxam";
           repo = "golf";
-          rev = "e95cacccd5ce8857844eb7f0db3abc72f94aaac2";
-          sha256 = "sha256-UoJ7ozFxrTUKQk8FcOws/uwyue+v1xEpq4NOe3xhqXo=";
+          rev = "5b581df7575f5d81f5e9de88e0b584649a0f058e";
+          sha256 = "sha256-ya4r/+Akfxeqsluisddv10HiwMcyF4YRI3JVCz/xeTQ=";
         };
 
         pythonPackages = pkgs.python312.pkgs;
