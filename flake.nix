@@ -30,19 +30,19 @@
           export CMAKE_PREFIX_PATH="${cudatoolkit}:$CMAKE_PREFIX_PATH"
         '';
 
-        plf-src = pkgs.fetchFromGitHub {
+        golf-src = pkgs.fetchFromGitHub {
           owner = "stilxam";
-          repo = "plf";
-          rev = "a7ef1f3684751b80b9f3ad9d36e3e3ab7745275d";
-          sha256 = "sha256-ZnbUmNI5cnvetcJoBjCsWn+nh5qMhS7pn2UlOfIm6bA=";
+          repo = "golf";
+          rev = "e95cacccd5ce8857844eb7f0db3abc72f94aaac2";
+          sha256 = "sha256-UoJ7ozFxrTUKQk8FcOws/uwyue+v1xEpq4NOe3xhqXo=";
         };
 
         pythonPackages = pkgs.python312.pkgs;
 
-        plf = pythonPackages.buildPythonPackage {
-          pname = "plf";
+        golf = pythonPackages.buildPythonPackage {
+          pname = "golf";
           version = "2960b45"; # Using the git revision for version
-          src = plf-src;
+          src = golf-src;
           propagatedBuildInputs = with pythonPackages; [
             jax
             jaxlib
@@ -62,7 +62,7 @@
           optax
           notebook
           matplotlib
-          plf
+          golf
         ];
 
         pythonEnv = python.withPackages mainPythonPackages;
