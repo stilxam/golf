@@ -16,7 +16,7 @@ class PiecewiseModel(eqx.Module):
 
     breakpoints_y: Float[Array, " n_breakpoints"]
 
-    x_range: Float[Array, " 2"] = eqx.field(static=True)
+    x_range: Float[Array, " 2"]
 
     def __init__(
             self,
