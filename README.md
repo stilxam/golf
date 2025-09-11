@@ -16,6 +16,31 @@ The package depends on JAX, Equinox, Optax, and jaxtyping. Install with pip (pic
 pip install jax jaxlib equinox optax jaxtyping
 ```
 
+or add it to you nix flake:
+```nix
+        golf-src = pkgs.fetchFromGitHub {
+          owner = "stilxam";
+          repo = "golf";
+          rev = "5b581df7575f5d81f5e9de88e0b584649a0f058e";
+          sha256 = "sha256-ya4r/+Akfxeqsluisddv10HiwMcyF4YRI3JVCz/xeTQ=";
+        };
+
+        pythonPackages = pkgs.python312.pkgs;
+
+        golf = pythonPackages.buildPythonPackage {
+          pname = "golf";
+          version = "2960b45"; # Using the git revision for version
+          src = golf-src;
+          propagatedBuildInputs = with pythonPackages; [
+            jax
+            jaxlib
+            equinox
+            jaxtyping
+            optax
+          ];
+        };
+```
+
 ## Usage (quickstart)
 
 ```python
