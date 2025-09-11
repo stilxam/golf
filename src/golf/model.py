@@ -16,12 +16,12 @@ class PiecewiseModel(eqx.Module):
 
     breakpoints_y: Float[Array, " n_breakpoints"]
 
-    x_range: Tuple[float, float] = eqx.field(static=True)
+    x_range: Float[Array, " 2"] = eqx.field(static=True)
 
     def __init__(
             self,
             n_segments: int,
-            x_range: Tuple[float, float],
+            x_range: Tuple[float, float] | Float[Array, " 2"],
             init_random: bool = False,
             *,
             key: PRNGKeyArray,
@@ -33,7 +33,7 @@ class PiecewiseModel(eqx.Module):
 
         Args:
             n_segments: The number of linear segments.
-            x_range: A tuple (min, max) defining the fixed endpoints of the function.
+            x_range: A tuple or array (min, max) defining the fixed endpoints of the function.
             init_random: Whether to initialize breakpoints randomly or evenly spaced.
             key: A JAX random key for initializing the heights.
             init_breakpoints_x: Optional array to initialize internal breakpoints.
@@ -41,15 +41,15 @@ class PiecewiseModel(eqx.Module):
         """
 
         keys = jax.random.split(key, 2)
-        self.x_range = x_range
+        self.x_range = jnp.asarray(x_range)
         if init_breakpoints_x is not None:
             self.internal_breakpoints_x = jnp.array(init_breakpoints_x)
         elif init_random:
             self.internal_breakpoints_x = jax.random.uniform(
-                keys[0], (n_segments - 1,), minval=x_range[0], maxval=x_range[1]
+                keys[0], (n_segments - 1,), minval=self.x_range[0], maxval=self.x_range[1]
             )
         else:
-            self.internal_breakpoints_x = jnp.linspace(x_range[0], x_range[1], n_segments + 1)[1:-1]
+            self.internal_breakpoints_x = jnp.linspace(self.x_range[0], self.x_range[1], n_segments + 1)[1:-1]
 
         if init_breakpoints_y is not None:
             self.breakpoints_y = jnp.array(init_breakpoints_y)
