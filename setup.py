@@ -5,16 +5,16 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="plf",
+    name="golf",
     version="0.0.1",
     author="Maxwell Litsios",
     author_email="m.l.h.litsios@student.tue.nl",
-    description="Gradient optimized piecewise linear fitting in JAX.",
+    description="Gradient Optimized piecewise Linear Fitting in JAX.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/stilxam/plf",
     project_urls={
-        "Bug Tracker": "https://github.com/stilxam/plf/issues",
+        "Bug Tracker": "https://github.com/stilxam/golf/issues",
     },
     classifiers=[
         "Programming Language :: Python :: 3",

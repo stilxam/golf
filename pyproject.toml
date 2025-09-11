@@ -3,12 +3,12 @@ requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "plf"
+name = "golf"
 version = "0.0.1"
 authors = [
   { name="Maxwell Litsios", email="m.l.h.litsios@student.tue.nl" },
 ]
-description = "Gradient optimized piecewise linear fitting in JAX."
+description = "Gradient Optimized piecewise Linear Fitting in JAX."
 readme = "README.md"
 requires-python = ">=3.12"
 classifiers = [

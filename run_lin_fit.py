@@ -2,7 +2,7 @@ import jax
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
 
-from plf import PiecewiseModel, fit
+from golf import PiecewiseModel, fit
 
 def main():
     """

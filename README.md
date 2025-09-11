@@ -1,4 +1,4 @@
-# plf — Piecewise Linear Fitting
+# GOLF — Gradient Optimized piecewise Linear Fitting
 
 plf is a small Python package built with JAX and Equinox for fitting continuous piecewise-linear functions (splines) to 1D data. It provides a differentiable model representing a continuous piecewise-linear function, a trainer that optimizes the model parameters with Optax, and a small solver for weighted linear regression.
 
@@ -19,25 +19,37 @@ pip install jax jaxlib equinox optax jaxtyping
 ## Usage (quickstart)
 
 ```python
+from golf import PiecewiseModel, fit
 import jax
 import jax.numpy as jnp
-from plf.model import PiecewiseModel
-from plf.trainer import fit
+import matplotlib.pyplot as plt
 
-# Create synthetic data
-key = jax.random.PRNGKey(0)
-x = jnp.linspace(0.0, 1.0, 200)
-y = jnp.sin(2 * jnp.pi * x) + 0.1 * jax.random.normal(key, x.shape)
+key = jax.random.PRNGKey(420)
+x_data = jnp.linspace(0, 10, 100)
+y_data = jnp.where(x_data < 3, 1.0, jnp.where(x_data < 6, 3.0, -1.0))
+y_data += jax.random.normal(key, (100,)) * 0.2
 
-# Initialize a piecewise model with 4 segments on [0, 1]
-model = PiecewiseModel(n_segments=4, x_range=(0.0, 1.0), key=key)
 
-# Fit the model to data
-trained = fit(model, x, y, n_iterations=500, learning_rate=1e-2)
+initial_model = PiecewiseModel(n_segments=5, x_range=(0, 10), init_random=False , key=key)
 
-# Predict with the trained model (vectorized)
-y_pred = jax.vmap(trained)(x)
+
+trained_model = fit(
+    initial_model,
+    x_data,
+    y_data,
+    n_iterations=2000,
+    learning_rate=0.01,
+    patience=200,
+)
+
+y_pred_final = jax.vmap(trained_model)(x_data)
+
+plt.figure(figsize=(10, 6))
+plt.scatter(x_data, y_data, label='Original Data', alpha=0.6, s=20, zorder=1)
+plt.plot(x_data, y_pred_final, color='red', label='Fitted Piecewise Model', zorder=2)
+plt.legend()
 ```
+![img.png](img.png)
 
 
 
