@@ -83,7 +83,7 @@ plt.plot(x_data, y_pred_final, color='red', label='Fitted Piecewise Model', zord
 plt.scatter(init_bx, init_by[1:-1], color='green', label='Initial Breakpoints', zorder=5)
 plt.legend()
 ```
-
+![smart_init.png](smart_init.png)
 
 
 
