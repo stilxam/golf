@@ -80,10 +80,10 @@ y_pred_final = jax.vmap(trained_model)(x_data)
 plt.figure(figsize=(10, 6))
 plt.scatter(x_data, y_data, label='Original Data', alpha=0.6, s=20, zorder=1)
 plt.plot(x_data, y_pred_final, color='red', label='Fitted Piecewise Model', zorder=2)
-plt.scatter(init_bx, init_by, color='green', label='Initial Breakpoints', zorder=5)
+plt.scatter(init_bx, init_by[1:-1], color='green', label='Initial Breakpoints', zorder=5)
 plt.legend()
 ```
-![breakpoint_initialization.png](breakpoint_initialization.png)
+
 
 
 
@@ -153,10 +153,10 @@ y_pred_final = jax.vmap(trained_model)(x_data)
 plt.figure(figsize=(10, 6))
 plt.scatter(x_data, y_data, label='Original Data', alpha=0.6, s=20, zorder=1)
 plt.plot(x_data, y_pred_final, color='red', label='Fitted Piecewise Model', zorder=2)
-plt.scatter(init_bx, init_by, color='green', label='Initial Breakpoints', zorder=5)
+plt.scatter(init_bx, init_by[1:-1], color='green', label='Initial Breakpoints', zorder=5)
 plt.legend()
 ```
-![breakpoint_initialization.png](breakpoint_initialization.png)
+
 
 ### Parallel Training of Multiple Models
 

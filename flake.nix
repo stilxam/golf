@@ -33,8 +33,8 @@
         golf-src = pkgs.fetchFromGitHub {
           owner = "stilxam";
           repo = "golf";
-          rev = "f6938810fe7e97919375d4d4290f3ff99698a304";
-          sha256 = "sha256-nA2lCVkH7BdPjsX9TCKnQ5C02eIVGjI3Kjn9nxUm+uw=";
+          rev = "a9462599cc62943866f1489abb4152b0c28a93a2";
+          sha256 = "sha256-r5uYs7FsugOgJAquFA7fQn4CsZBdMJd/efcivRdNydw=";
         };
 
         pythonPackages = pkgs.python312.pkgs;
@@ -62,7 +62,7 @@
           optax
           notebook
           matplotlib
-          golf
+#          golf
         ];
 
         pythonEnv = python.withPackages mainPythonPackages;

@@ -7,7 +7,7 @@ import equinox as eqx
 
 @eqx.filter_jit
 def init_curvature(x_data: Float[Array, "n"], y_data: Float[Array, "n"], n_segments: int,
-                       smoothing_window: int= 10, min_separation_ratio: float= 0.05) -> Tuple[Float[Array, "m"], Float[Array, "m"]]:
+                       smoothing_window: int= 10, min_separation_ratio: float= 0.05) -> Tuple[Float[Array, "n_segments-1"], Float[Array, "n_segments+1"]]:
     """
     Initializes breakpoints in regions of high curvature with minimum separation.
     This version is fully compatible with JAX's JIT compiler.
@@ -64,9 +64,16 @@ def init_curvature(x_data: Float[Array, "n"], y_data: Float[Array, "n"], n_segme
     breakpoint_indices = jnp.sort(breakpoint_indices)
 
     init_breakpoints_x = x_data[breakpoint_indices]
-    init_breakpoints_y = y_data[breakpoint_indices]
+    internal_y = y_data[breakpoint_indices]
 
-    return init_breakpoints_x, init_breakpoints_y
+    # Also include endpoint y-values
+    full_init_y = jnp.concatenate([
+        jnp.array([y_data[0]]),
+        internal_y,
+        jnp.array([y_data[-1]])
+    ])
+
+    return init_breakpoints_x, full_init_y
 
 
 
