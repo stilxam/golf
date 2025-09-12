@@ -1,13 +1,14 @@
 import jax
 import jax.numpy as jnp
 import equinox as eqx
+from jaxtyping import Array, Float, Int
+from typing import Tuple
 
 
 
 @eqx.filter_jit
-def init_curvature(x_data: jnp.ndarray, y_data: jnp.ndarray, n_segments: int,
-                       smoothing_window: int = 10, min_separation_ratio: float = 0.05) -> tuple[
-    jnp.ndarray, jnp.ndarray]:
+def init_curvature(x_data: Float[Array, "n"], y_data: Float[Array, "n"], n_segments: Int[Array, ""],
+                       smoothing_window: Int[Array, ""] = jnp.array(10), min_separation_ratio: Float[Array, ""] = jnp.array(0.05)) -> Tuple[Float[Array, "m"], Float[Array, "m"]]:
     """
     Initializes breakpoints in regions of high curvature with minimum separation.
     This version is fully compatible with JAX's JIT compiler.
@@ -90,13 +91,6 @@ if __name__ == '__main__':
     N_SEGMENTS = 3
 
 
-    
-    
-    
-    
-    
-
-    
     bx_c, by_c = init_curvature(x, y, N_SEGMENTS, smoothing_window=10)
     print("\n--- Curvature ---")
     print("x:", bx_c)

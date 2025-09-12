@@ -1,12 +1,13 @@
 # GOLF — Gradient Optimized piecewise Linear Fitting
 
-plf is a small Python package built with JAX and Equinox for fitting continuous piecewise-linear functions (splines) to 1D data. It provides a differentiable model representing a continuous piecewise-linear function, a trainer that optimizes the model parameters with Optax, and a small solver for weighted linear regression.
+golf is a small Python package built with JAX and Equinox for fitting continuous piecewise-linear functions (splines) to 1D data. It provides a differentiable model representing a continuous piecewise-linear function, a trainer that optimizes the model parameters with Optax, and a small solver for weighted linear regression.
 
 ## Key features
 
 - Differentiable `PiecewiseModel` (continuous piecewise-linear spline) implemented as an Equinox module.
 - Simple training loop with early stopping using Optax (Adam).
 - Utility solver for weighted linear regression.
+- Intelligent breakpoint initialization based on data curvature.
 
 ## Installation
 
@@ -21,8 +22,8 @@ or add it to you nix flake:
         golf-src = pkgs.fetchFromGitHub {
           owner = "stilxam";
           repo = "golf";
-          rev = "5b581df7575f5d81f5e9de88e0b584649a0f058e";
-          sha256 = "sha256-ya4r/+Akfxeqsluisddv10HiwMcyF4YRI3JVCz/xeTQ=";
+          rev = "latest rev"; # replace with actual latest revision
+          sha256 = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAaAAAAAAAAAA="; # replace with actual sha256
         };
 
         pythonPackages = pkgs.python312.pkgs;
@@ -44,7 +45,7 @@ or add it to you nix flake:
 ## Usage (quickstart)
 
 ```python
-from golf import PiecewiseModel, fit
+from golf import PiecewiseModel, fit, init_curvature
 import jax
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
@@ -54,9 +55,16 @@ x_data = jnp.linspace(0, 10, 100)
 y_data = jnp.where(x_data < 3, 1.0, jnp.where(x_data < 6, 3.0, -1.0))
 y_data += jax.random.normal(key, (100,)) * 0.2
 
+n_segments = 5
+init_bx, init_by = init_curvature(x_data, y_data, n_segments)
 
-initial_model = PiecewiseModel(n_segments=5, x_range=(0, 10), init_random=False , key=key)
-
+initial_model = PiecewiseModel(
+    n_segments=n_segments,
+    x_range=(0, 10),
+    init_breakpoints_x=init_bx,
+    init_breakpoints_y=init_by,
+    key=key
+)
 
 trained_model = fit(
     initial_model,
@@ -72,27 +80,83 @@ y_pred_final = jax.vmap(trained_model)(x_data)
 plt.figure(figsize=(10, 6))
 plt.scatter(x_data, y_data, label='Original Data', alpha=0.6, s=20, zorder=1)
 plt.plot(x_data, y_pred_final, color='red', label='Fitted Piecewise Model', zorder=2)
+plt.scatter(init_bx, init_by, color='green', label='Initial Breakpoints', zorder=5)
 plt.legend()
 ```
-![img.png](img.png)
+![breakpoint_initialization.png](breakpoint_initialization.png)
 
 
 
 ## API reference (brief)
 
-- `plf.model.PiecewiseModel`
+- `golf.model.PiecewiseModel`
   - A differentiable Equinox module representing a continuous piecewise-linear function.
   - Constructor: `PiecewiseModel(n_segments: int, x_range: tuple[float, float], *, key, init_random=False, init_breakpoints_x=None, init_breakpoints_y=None)`
   - Callable: `model(x)` returns interpolated y for scalar or vmapped over arrays via `jax.vmap`.
 
-- `plf.trainer.fit`
+- `golf.trainer.fit`
   - Trains a `PiecewiseModel` on (x, y).
   - Signature: `fit(model, x_data, y_data, n_iterations=300, learning_rate=0.01, patience=10, verbose=True) -> trained_model`
   - Uses Optax Adam optimizer and early stopping based on validation of loss during training.
 
-- `plf.solver.solve_weighted_linear_regression`
+- `golf.solver.solve_weighted_linear_regression`
   - Solves for slope and intercept using weighted least squares.
   - Signature: `solve_weighted_linear_regression(x, y, weights) -> (slope, intercept)`
+
+- `golf.initialization.init_curvature`
+  - Initializes breakpoints based on curvature.
+  - Signature: `init_curvature(x_data, y_data, n_segments, smoothing_window=10, min_separation_ratio=0.05) -> (init_breakpoints_x, init_breakpoints_y)`
+
+### Breakpoint Initialization
+
+The `golf.initialization` module provides functions to intelligently initialize the breakpoints of the `PiecewiseModel`. Good initial breakpoint placement can significantly speed up convergence and improve the final fit.
+
+**Curvature-Based Initialization**
+
+The `init_curvature` function places breakpoints in regions of high curvature. This is useful when the underlying function has sharp turns or changes in slope.
+
+**Usage:**
+```python
+from golf import PiecewiseModel, fit
+from golf.initialization import init_curvature
+import jax
+import jax.numpy as jnp
+import matplotlib.pyplot as plt
+
+key = jax.random.PRNGKey(420)
+x_data = jnp.linspace(0, 10, 100)
+y_data = jnp.where(x_data < 3, 1.0, jnp.where(x_data < 6, 3.0, -1.0))
+y_data += jax.random.normal(key, (100,)) * 0.2
+
+n_segments = 5
+init_bx, init_by = init_curvature(x_data, y_data, n_segments)
+
+initial_model = PiecewiseModel(
+    n_segments=n_segments,
+    x_range=(0, 10),
+    init_breakpoints_x=init_bx,
+    init_breakpoints_y=init_by,
+    key=key
+)
+
+trained_model = fit(
+    initial_model,
+    x_data,
+    y_data,
+    n_iterations=2000,
+    learning_rate=0.01,
+    patience=200,
+)
+
+y_pred_final = jax.vmap(trained_model)(x_data)
+
+plt.figure(figsize=(10, 6))
+plt.scatter(x_data, y_data, label='Original Data', alpha=0.6, s=20, zorder=1)
+plt.plot(x_data, y_pred_final, color='red', label='Fitted Piecewise Model', zorder=2)
+plt.scatter(init_bx, init_by, color='green', label='Initial Breakpoints', zorder=5)
+plt.legend()
+```
+![breakpoint_initialization.png](breakpoint_initialization.png)
 
 ### Parallel Training of Multiple Models
 
