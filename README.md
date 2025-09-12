@@ -94,6 +94,47 @@ plt.legend()
   - Solves for slope and intercept using weighted least squares.
   - Signature: `solve_weighted_linear_regression(x, y, weights) -> (slope, intercept)`
 
+### Parallel Training of Multiple Models
+
+This package also supports the efficient training of multiple `PiecewiseModel` instances in parallel on a single accelerator (like a GPU). This is useful for hyperparameter tuning or running ensembles. The `golf.fit_parallel` function leverages `jax.vmap` to vectorize the entire training process.
+
+**Usage:**
+
+Here is an example of how to train a batch of models with different random initializations:
+
+```python
+import jax
+import jax.numpy as jnp
+from golf import PiecewiseModel, fit_parallel
+
+# 1. Generate some data
+key = jax.random.PRNGKey(0)
+x_data = jnp.linspace(0, 1, 100)
+y_data = jnp.sin(x_data * 2 * jnp.pi) + jax.random.normal(key, x_data.shape) * 0.1
+x_range = (0.0, 1.0)
+
+# 2. Create a list of models to train in parallel
+n_models = 5
+n_segments = 10
+keys = jax.random.split(key, n_models)
+
+models_to_train = [
+    PiecewiseModel(n_segments=n_segments, x_range=x_range, key=k)
+    for k in keys
+]
+
+# 3. Fit all models in parallel
+trained_models = fit_parallel(
+    models=models_to_train,
+    x_data=x_data,
+    y_data=y_data,
+    n_iterations=2000,
+    learning_rate=0.01
+)
+
+print(f"Successfully trained {len(trained_models)} models in parallel.")
+```
+
 ## Development
 
 - The project is lightweight and intended as a starting point for experiments with differentiable splines in JAX.
