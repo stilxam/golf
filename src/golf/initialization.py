@@ -3,10 +3,12 @@ import jax.numpy as jnp
 import equinox as eqx
 from jaxtyping import Array, Float, Int
 from typing import Tuple
+from functools import partial
 
 
 
-@eqx.filter_jit
+@partial(eqx.filter_jit, static_argnames=["n_segments", "smoothing_window"])
+
 def init_curvature(x_data: Float[Array, "n"], y_data: Float[Array, "n"], n_segments: Int[Array, ""],
                        smoothing_window: Int[Array, ""] = jnp.array(10), min_separation_ratio: Float[Array, ""] = jnp.array(0.05)) -> Tuple[Float[Array, "m"], Float[Array, "m"]]:
     """
