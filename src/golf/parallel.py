@@ -11,23 +11,21 @@ from .trainer import _compute_loss
 
 def fit_parallel(
         models: List[PiecewiseModel],
-        x_data: jax.Array,
-        y_data: jax.Array,
+        data_pairs: List[tuple[jax.Array, jax.Array]],
         n_iterations: int = 300,
         learning_rate: float = 0.01,
         patience: int = 10,
         verbose: bool = True,
 ) -> List[PiecewiseModel]:
     """
-    Trains multiple PiecewiseModel instances in parallel on a single device (e.g., GPU).
+    Trains multiple PiecewiseModel instances in parallel on multiple data pairs on a single device (e.g., GPU).
 
     This function leverages `jax.vmap` to vectorize the training process, allowing
     for efficient parallel updates to all models in a single execution pass.
 
     Args:
         models: A list of `PiecewiseModel` instances to be trained.
-        x_data: The input data for training.
-        y_data: The target data for training.
+        data_pairs: A list of (x_data, y_data) tuples for training.
         n_iterations: The maximum number of training iterations.
         learning_rate: The learning rate for the Adam optimizer.
         patience: The number of iterations to wait for improvement before early stopping.
@@ -36,8 +34,13 @@ def fit_parallel(
     Returns:
         A list of trained `PiecewiseModel` instances.
     """
-    x_arr = jnp.asarray(x_data)
-    y_arr = jnp.asarray(y_data)
+    if len(models) != len(data_pairs):
+        raise ValueError("The number of models must match the number of data pairs.")
+
+    x_data, y_data = zip(*data_pairs)
+    x_arr = jnp.stack([jnp.asarray(x) for x in x_data])
+    y_arr = jnp.stack([jnp.asarray(y) for y in y_data])
+
 
     # Stack the list of models into a single, batched PyTree model.
     batched_model = jax.tree_util.tree_map(lambda *leaves: jnp.stack(leaves), *models)
@@ -48,7 +51,7 @@ def fit_parallel(
     # Vmap the gradient calculation function to operate over the batch of models.
     vmapped_grad_fn = jax.vmap(
         eqx.filter_value_and_grad(_compute_loss),
-        in_axes=(0, None, None)  # (model, x_data, y_data)
+        in_axes=(0, 0, 0)  # (model, x_data, y_data)
     )
 
     # Define the parallel step function.

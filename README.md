@@ -99,6 +99,10 @@ plt.legend()
   - Signature: `fit(model, x_data, y_data, n_iterations=300, learning_rate=0.01, patience=10, verbose=True) -> trained_model`
   - Uses Optax Adam optimizer and early stopping based on validation of loss during training.
 
+- `golf.parallel.fit_parallel`
+  - Trains multiple `PiecewiseModel` instances in parallel on multiple data pairs.
+  - Signature: `fit_parallel(models, data_pairs, n_iterations=300, learning_rate=0.01, patience=10, verbose=True) -> trained_models`
+
 - `golf.solver.solve_weighted_linear_regression`
   - Solves for slope and intercept using weighted least squares.
   - Signature: `solve_weighted_linear_regression(x, y, weights) -> (slope, intercept)`
@@ -164,43 +168,84 @@ This package also supports the efficient training of multiple `PiecewiseModel` i
 
 **Usage:**
 
-Here is an example of how to train a batch of models with different random initializations:
+Here is an example of how to train multiple models on multiple datasets:
 
 ```python
+from src.golf import PiecewiseModel, fit_parallel, init_curvature
 import jax
 import jax.numpy as jnp
-from golf import PiecewiseModel, fit_parallel
+import matplotlib.pyplot as plt
 
-# 1. Generate some data
-key = jax.random.PRNGKey(0)
-x_data = jnp.linspace(0, 1, 100)
-y_data = jnp.sin(x_data * 2 * jnp.pi) + jax.random.normal(key, x_data.shape) * 0.1
-x_range = (0.0, 1.0)
+# Create a key for reproducibility
+key = jax.random.PRNGKey(420)
 
-# 2. Create a list of models to train in parallel
-n_models = 5
-n_segments = 10
-keys = jax.random.split(key, n_models)
+# --- Dataset 1 ---
+x_data1 = jnp.linspace(0, 10, 100)
+y_data1 = jnp.sin(x_data1) + jax.random.normal(key, (100,)) * 0.2
 
-models_to_train = [
-    PiecewiseModel(n_segments=n_segments, x_range=x_range, key=k)
-    for k in keys
-]
+# --- Dataset 2 ---
+x_data2 = jnp.linspace(-5, 5, 100)
+y_data2 = jnp.cos(x_data2) + jax.random.normal(key, (100,)) * 0.1
 
-# 3. Fit all models in parallel
-trained_models = fit_parallel(
-    models=models_to_train,
-    x_data=x_data,
-    y_data=y_data,
-    n_iterations=2000,
-    learning_rate=0.01
+# --- Model Initialization ---
+n_segments = 5
+
+# Model 1
+init_bx1, init_by1 = init_curvature(x_data1, y_data1, n_segments)
+initial_model1 = PiecewiseModel(
+    n_segments=n_segments,
+    x_range=(0, 10),
+    init_breakpoints_x=init_bx1,
+    init_breakpoints_y=init_by1,
+    key=key
 )
 
-print(f"Successfully trained {len(trained_models)} models in parallel.")
+# Model 2
+init_bx2, init_by2 = init_curvature(x_data2, y_data2, n_segments)
+initial_model2 = PiecewiseModel(
+    n_segments=n_segments,
+    x_range=(-5, 5),
+    init_breakpoints_x=init_bx2,
+    init_breakpoints_y=init_by2,
+    key=key
+)
+
+# --- Parallel Training ---
+models = [initial_model1, initial_model2]
+
+data_pairs = [(x_data1, y_data1), (x_data2, y_data2)]
+
+trained_models = fit_parallel(
+    models,
+    data_pairs,
+    n_iterations=2000,
+    learning_rate=0.01,
+    patience=200,
+)
+
+# --- Plotting ---
+fig, axes = plt.subplots(1, 2, figsize=(20, 6))
+
+# Plot for Model 1
+y_pred1 = jax.vmap(trained_models[0])(x_data1)
+axes[0].scatter(x_data1, y_data1, label='Original Data 1', alpha=0.6, s=20)
+axes[0].plot(x_data1, y_pred1, color='red', label='Fitted Model 1')
+axes[0].set_title('Dataset 1')
+axes[0].legend()
+
+# Plot for Model 2
+y_pred2 = jax.vmap(trained_models[1])(x_data2)
+axes[1].scatter(x_data2, y_data2, label='Original Data 2', alpha=0.6, s=20)
+axes[1].plot(x_data2, y_pred2, color='blue', label='Fitted Model 2')
+axes[1].set_title('Dataset 2')
+axes[1].legend()
+
+plt.savefig("fit_parallel_example.png")
+plt.show()
 ```
+![fit_parallel_example.png](fit_parallel_example.png)
 
 ## Development
 
 - The project is lightweight and intended as a starting point for experiments with differentiable splines in JAX.
 - Tests and additional examples can be added in the repository root.
-
