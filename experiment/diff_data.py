@@ -79,7 +79,7 @@ def rk4_step(y: State, params: SimParams) -> State:
     return y + (k1 + 2 * k2 + 2 * k3 + k4) / 6.0
 
 
-def dataset_generator(key: PRNGKeyArray, params: SimParams = SimParams(grid_size=512, T=4000.0), pert_width_frac: float = 0.1) -> Float[Array, "num_saves num_species grid_size"]:
+def dataset_generator(key: PRNGKeyArray, params: SimParams = SimParams(grid_size=512, T=4000.0), pert_width_frac: float = 0.1, num_saves: int = 100) -> Float[Array, "num_saves num_species grid_size"]:
     """
     Generate a Gray-Scott dataset using the given random key and simulation parameters.
     Returns the history array of shape (num_saves, num_species, grid_size).
@@ -95,7 +95,7 @@ def dataset_generator(key: PRNGKeyArray, params: SimParams = SimParams(grid_size
     y_initial: State = jnp.stack([u_initial, v_initial])
 
     n_steps = int(params.T / params.dt)
-    save_every = n_steps // 100
+    save_every = n_steps // num_saves
     history = []
     y_current = y_initial
 

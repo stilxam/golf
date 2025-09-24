@@ -59,6 +59,36 @@
             optax
           ];
         };
+ #        
+	# py-earth-src = pkgs.fetchFromGitHub {
+ #          owner = "scikit-learn-contrib";
+ #          repo = "py-earth";
+ #          rev = "b209d1916f051dbea5b142af25425df2de469c5a";
+ #          sha256 = "sha256-8CGnrCNwy0t618JApTwfhSx5XXLGQ2qYjoS4w/qHMsY=";
+ #        };
+	#
+	#
+ #        py-earth = pythonPackages.buildPythonPackage {
+ #          pname = "py-earth";
+ #          version = "0.1.0"; 
+ #          src = py-earth-src;
+	#   postPatch = ''
+	#     sed -i 's/configparser.SafeConfigParser/configparser.ConfigParser/g' versioneer.py
+	#     sed -i 's/parser.readfp(f)/parser.read_file(f)/g' versioneer.py
+	#   '';
+ #          propagatedBuildInputs = with pythonPackages; [
+	#     scipy
+	#     scikit-learn
+	#     six
+	#     cython
+	#     pandas
+	#     statsmodels
+	#     sympy
+	#     patsy
+	#     numpy
+ #          ];
+ #        };
+	#
 
 
         mainPythonPackages = ps: with ps; [
@@ -74,6 +104,7 @@
 
         scipy
         pwlf
+	# py-earth
         golf
 
         pandas
@@ -94,6 +125,7 @@
           buildInputs = [
             pythonEnv
 	    cudatoolkit
+	    unstable-pkgs.gemini-cli
           ] ;
 
           shellHook = cudaEnvHook + ''

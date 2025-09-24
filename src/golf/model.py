@@ -56,6 +56,11 @@ class PiecewiseModel(eqx.Module):
         else:
             self.breakpoints_y = jax.random.normal(keys[1], (n_segments + 1,))
 
+    @property
+    def n_segments(self) -> int:
+        """Returns the number of segments in the piecewise model."""
+        return self.internal_breakpoints_x.shape[0] + 1
+
     def __call__(self, x: Float[Array, ""]) -> Float[Array, ""]:
         """
         Differentiable prediction for a single scalar input x.
@@ -70,4 +75,3 @@ class PiecewiseModel(eqx.Module):
 
         # jnp.interp is the core of our differentiable model.
         return jnp.interp(x, full_x, self.breakpoints_y)
-

@@ -50,9 +50,9 @@ def init_curvature(x_data: Float[Array, "n"], y_data: Float[Array, "n"], n_segme
 
         
         start = jnp.maximum(0, max_idx - min_separation_indices)
-        end = jnp.minimum(len(current_curvature), max_idx + min_separation_indices + 1)
+        end = jnp.minimum(current_curvature.shape[0], max_idx + min_separation_indices + 1)
 
-        mask_range = jnp.arange(len(current_curvature))
+        mask_range = jnp.arange(current_curvature.shape[0])
         mask = (mask_range >= start) & (mask_range < end)
 
         new_curvature = jnp.where(mask, 0.0, current_curvature)
@@ -112,4 +112,3 @@ if __name__ == '__main__':
     plt.xlabel('x')
     plt.ylabel('y')
     plt.savefig('breakpoint_initialization.png')
-
